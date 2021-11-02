@@ -1,0 +1,29 @@
+<div id="div_{{ name }}" style="min-height: 800px;"></div>
+<textarea cols="40" id="id_{{ name }}" name="{{ name }}" rows="10" required=""
+          style="display: none">{{ data|safe }}</textarea>
+
+<script>
+  try {
+    options = {{ editor_options|safe }};
+  } catch (ex) {
+    let options = {{ editor_options|safe }};
+  }
+  options['templates'] = {{ templates|safe }};
+  options['onChange'] = () => {
+    document.getElementById("id_{{ name }}").value = {{ name }}_editor.getText();
+  }
+
+  const {{ name }}_container = document.getElementById('div_{{ name }}');
+  const {{ name }}_editor = new JSONEditor({{ name }}_container, options);
+  {{ name }}_editor.expandAll();
+
+  {% if value %}
+    try {
+      json = {{ value|safe }};
+    } catch (ex) {
+      let json = {{ value|safe }};
+    }
+    document.getElementById("id_{{ name }}").value = JSON.stringify(json);
+    {{ name }}_editor.set(json);
+  {% endif %}
+</script>
