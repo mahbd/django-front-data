@@ -79,6 +79,32 @@ def get_configuration(key: str) -> str | None:
         return None
 
 
+def get_configuration_int(key: str) -> int:
+    """
+    Get a configuration value by key.
+
+    :param key: The key of the configuration value.
+    :return: The value of the configuration value. None if the key is not found.
+    """
+    try:
+        return int(Configuration.objects.get(key=key).value)
+    except (Configuration.DoesNotExist, ValueError, TypeError):
+        return 0
+
+
+def get_configuration_float(key: str) -> float:
+    """
+    Get a configuration value by key.
+
+    :param key: The key of the configuration value.
+    :return: The value of the configuration value. None if the key is not found.
+    """
+    try:
+        return float(Configuration.objects.get(key=key).value)
+    except (Configuration.DoesNotExist, ValueError, TypeError):
+        return 0.0
+
+
 def set_configuration(key: str, value: Any, description='') -> None:
     """
     Set a configuration value by key.

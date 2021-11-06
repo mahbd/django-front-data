@@ -1,6 +1,7 @@
 import os
 import pathlib
-from setuptools import setup, find_packages
+
+from setuptools import setup
 
 # The directory containing this file
 HERE = pathlib.Path(__file__).parent
@@ -20,7 +21,7 @@ def gen_data_files(*dirs):
 # This call to setup() does all the work
 setup(
     name="django-front-data",
-    version="1.1.0",
+    version="1.2.0",
     description="Create django front-end data apps",
     long_description=README,
     long_description_content_type="text/markdown",
