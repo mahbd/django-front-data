@@ -148,3 +148,10 @@ DEFAULT_SITE_DATA = [
         ]
     }
 ]
+
+
+DEFAULT_CONFIGURATION = [
+    {'key': 'unverified_deposit_limit', 'value': '0.0'},
+    {'key': 'unverified_withdrawal_limit', 'value': '0.0'},
+    {'key': 'verified_deposit_limit', 'value': '0.0'},
+]

@@ -1,5 +1,4 @@
 import json
-import warnings
 
 from django import forms
 from django.conf import settings
@@ -8,7 +7,7 @@ from django.db import OperationalError
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 
-from front_data.models import FrontData, FAQ
+from front_data.models import FrontData, FAQ, Configuration
 
 
 class JSONEditorWidget(forms.Widget):
@@ -95,7 +94,7 @@ class SiteDataAdmin(admin.ModelAdmin):
             default_data = settings.DEFAULT_SITE_DATA
             if isinstance(default_data, list):
                 for site_data in default_data:
-                    if  site_data.get('name') and site_data.get('templates') and \
+                    if site_data.get('name') and site_data.get('templates') and \
                             list(sorted(site_data.keys())) == ["data", "name", "templates"]:
                         name = site_data.get('name')
                         templates = site_data.get('templates')
@@ -134,4 +133,28 @@ class FAQAdmin(admin.ModelAdmin):
     list_display = ['question', 'created_at']
     search_fields = ['question', 'answer']
     list_filter = ['created_at']
+    list_per_page = 20
+
+
+@admin.register(Configuration)
+class ConfigurationAdmin(admin.ModelAdmin):
+    def __init__(self, model, admin_site):
+        super().__init__(model, admin_site)
+        try:
+            default_data = settings.DEFAULT_CONFIGURATION
+            if isinstance(default_data, list):
+                for config in default_data:
+                    if config.get('key') and config.get('value'):
+                        key = config.get('key')
+                        if not Configuration.objects.filter(key=key).exists():
+                            Configuration.objects.create(**config)
+                    else:
+                        raise ValueError("*******Doesn't have required attributes or has extra: Configurations")
+            else:
+                raise ValueError("*******Configuration must be a list********")
+        except (AttributeError, OperationalError):
+            pass
+
+    list_display = ['key', 'value', 'description']
+    search_fields = ['key', 'value', 'description']
     list_per_page = 20

@@ -5,6 +5,15 @@ from django.utils import timezone
 User = get_user_model()
 
 
+class Configuration(models.Model):
+    description = models.TextField(blank=True, null=True)
+    key = models.CharField(max_length=255, unique=True, primary_key=True)
+    value = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ('key',)
+
+
 class FrontData(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=255, unique=True, primary_key=True)
@@ -27,6 +36,6 @@ class FAQ(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ('-created_at', )
+        ordering = ('-created_at',)
         verbose_name = 'Frequently Asked Question'
         verbose_name_plural = 'Frequently Asked Questions'

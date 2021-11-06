@@ -1,14 +1,15 @@
+import json
+
+from django.contrib.auth.models import User, Permission
+from django.test import TestCase, Client
+
+from front_data.models import FrontData, FAQ, Configuration
+from front_data.serializers import FrontDataSerializer, FullFrontDataSerializer, StdFrontDataSerializer, FAQSerializer, \
+    ConfigurationSerializer
+
+c = Client()
 try:
     import rest_framework
-    import json
-
-    from django.contrib.auth.models import User, Permission
-    from django.test import TestCase, Client
-
-    from front_data.models import FrontData, FAQ
-    from front_data.serializers import FrontDataSerializer, FullFrontDataSerializer, StdFrontDataSerializer, FAQSerializer
-
-    c = Client()
 
 
     class SiteDataTest(TestCase):
@@ -168,5 +169,108 @@ try:
             self.assertEqual(res.status_code, 200)
             res = res.json()
             self.assertCountEqual(res, FAQSerializer(FAQ.objects.all(), many=True).data)
+
+
+    class ConfigurationTestCase(TestCase):
+        def setUp(self) -> None:
+            self.admin = User.objects.create_superuser('super', password='1234')
+            self.staff1 = User.objects.create_user('staff', password='1234', is_staff=True)
+            self.staff2 = User.objects.create_user('staff2', password='1234', is_staff=True)
+            self.user = User.objects.create_user('user', password='1234')
+            self.staff1.user_permissions.add(Permission.objects.get(codename='add_configuration'))
+            self.staff1.user_permissions.add(Permission.objects.get(codename='change_configuration'))
+            self.staff1.user_permissions.add(Permission.objects.get(codename='delete_configuration'))
+            self.staff1.user_permissions.add(Permission.objects.get(codename='view_configuration'))
+            self.api = '/api/configurations/'
+
+            c.force_login(self.admin)
+            c.post(self.api, {
+                "key": "test_about",
+                "value": 'hello world'
+            })
+            c.logout()
+
+        def test_create_configuration_admin(self):
+            c.force_login(self.admin)
+            res = c.post(self.api, {'key': 'hello', 'value': 'nice to meet'})
+            self.assertEqual(res.status_code, 201)
+            data = res.json()
+            self.assertEqual(data['key'], 'hello')
+            self.assertEqual(data['value'], 'nice to meet')
+
+        def test_create_configuration_staff(self):
+            c.force_login(self.staff1)
+            res = c.post(self.api, {'key': 'hello', 'value': 'nice to meet'})
+            self.assertEqual(res.status_code, 201)
+
+        def test_create_configuration_non_permitted_staff(self):
+            c.force_login(self.staff2)
+            res = c.post(self.api, {'key': 'hello', 'value': 'nice to meet'})
+            self.assertEqual(res.status_code, 403)
+
+        def test_create_configuration_user(self):
+            c.force_login(self.user)
+            res = c.post(self.api, {'key': 'hello', 'value': 'nice to meet'})
+            self.assertEqual(res.status_code, 403)
+
+        def test_get_configuration_user(self):
+            c.force_login(self.user)
+            res = c.get(self.api)
+            self.assertEqual(res.status_code, 200)
+            res = res.json()
+            self.assertCountEqual(res, ConfigurationSerializer(Configuration.objects.all(), many=True).data)
+
+        def test_get_configuration_ann(self):
+            c.logout()
+            res = c.get(self.api)
+            self.assertEqual(res.status_code, 200)
+            res = res.json()
+            self.assertCountEqual(res, ConfigurationSerializer(Configuration.objects.all(), many=True).data)
+
+        def test_update_configuration_admin(self):
+            c.force_login(self.admin)
+            res = c.patch(self.api + 'test_about/', {'value': 'hello world 2'}, content_type='application/json')
+            self.assertEqual(res.status_code, 200)
+            data = res.json()
+            self.assertEqual(data['value'], 'hello world 2')
+
+        def test_update_configuration_staff(self):
+            c.force_login(self.staff1)
+            res = c.patch(self.api + 'test_about/', {'value': 'hello world 2'}, content_type='application/json')
+            self.assertEqual(res.status_code, 200)
+            data = res.json()
+            self.assertEqual(data['value'], 'hello world 2')
+
+        def test_update_configuration_non_permitted_staff(self):
+            c.force_login(self.staff2)
+            res = c.patch(self.api + 'test_about/', {'value': 'hello world 2'})
+            self.assertEqual(res.status_code, 403)
+
+        def test_update_configuration_user(self):
+            c.force_login(self.user)
+            res = c.patch(self.api + 'test_about/', {'value': 'hello world 2'})
+            self.assertEqual(res.status_code, 403)
+
+        def test_delete_configuration_admin(self):
+            c.force_login(self.admin)
+            res = c.delete(self.api + 'test_about/')
+            self.assertEqual(res.status_code, 204)
+
+        def test_delete_configuration_staff(self):
+            c.force_login(self.staff1)
+            res = c.delete(self.api + 'test_about/')
+            self.assertEqual(res.status_code, 204)
+
+        def test_delete_configuration_non_permitted_staff(self):
+            c.force_login(self.staff2)
+            res = c.delete(self.api + 'test_about/')
+            self.assertEqual(res.status_code, 403)
+
+        def test_delete_configuration_user(self):
+            c.force_login(self.user)
+            res = c.delete(self.api + 'test_about/')
+            self.assertEqual(res.status_code, 403)
+
+
 except ModuleNotFoundError:
     pass

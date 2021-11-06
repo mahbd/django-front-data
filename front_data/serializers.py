@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 
-from .models import FrontData, FAQ
+from .models import FrontData, FAQ, Configuration
 
 try:
     from rest_framework import serializers
@@ -35,6 +35,12 @@ try:
         class Meta:
             model = FAQ
             fields = '__all__'
+
+
+    class ConfigurationSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Configuration
+            fields = '__all__'
 except (ModuleNotFoundError, ImportError):
     class FrontDataSerializer:
         """Don't use this. Install djangorestframework before using this"""
@@ -52,6 +58,11 @@ except (ModuleNotFoundError, ImportError):
 
 
     class FAQSerializer:
+        """Don't use this. Install djangorestframework before using this"""
+        pass
+
+
+    class ConfigurationSerializer:
         """Don't use this. Install djangorestframework before using this"""
         pass
 

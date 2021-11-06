@@ -20,11 +20,11 @@ def gen_data_files(*dirs):
 # This call to setup() does all the work
 setup(
     name="django-front-data",
-    version="1.0.0",
+    version="1.1.0",
     description="Create django front-end data apps",
     long_description=README,
     long_description_content_type="text/markdown",
-    url="https://github.com/mahbd/front-data",
+    url="https://github.com/mahbd/django-front-data",
     author="Mahmudul Alam",
     author_email="mahmudula2000@gmail.com",
     license="MIT",
@@ -33,7 +33,6 @@ setup(
         'Operating System :: OS Independent',
         'Environment :: Web Environment',
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         'Framework :: Django',
         'Framework :: Django :: 3.2',
